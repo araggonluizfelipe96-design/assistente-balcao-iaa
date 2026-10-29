@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#102c27">
+  <meta name="description" content="Pesquise códigos EAN de medicamentos com IA e fontes da internet.">
+  <title>Assistente de Balcão IA</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="top">
+      <div class="logo" aria-hidden="true">+</div>
+      <div>
+        <p class="eyebrow">PESQUISA FARMACÊUTICA</p>
+        <h1>Assistente de Balcão</h1>
+        <p class="sub">Digite o medicamento e veja os EANs encontrados diretamente aqui, com as fontes consultadas.</p>
+      </div>
+      <span class="live"><i></i> IA + WEB</span>
+    </header>
+
+    <section class="search-card">
+      <label for="query">Nome do medicamento</label>
+      <form id="search-form">
+        <div class="input-wrap">
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <input id="query" name="query" maxlength="180" placeholder="Ex.: cefuroxima axetil 250 mg" autocomplete="off" required>
+          <button id="search-button" type="submit">Buscar EANs <span aria-hidden="true">→</span></button>
+        </div>
+      </form>
+      <p class="hint">Digite a marca, o princípio ativo ou até um nome escrito incorretamente. Os resultados aparecem nesta tela.</p>
+      <div class="quick">
+        <span>Exemplos:</span>
+        <button type="button" data-query="dipirona gotas 500 mg/mL">Dipirona gotas</button>
+        <button type="button" data-query="Desve 50 mg 30 comprimidos">Desve 50 mg</button>
+        <button type="button" data-query="cefuroxima axetil 250 mg">Cefuroxima 250 mg</button>
+      </div>
+    </section>
+
+    <section id="result-card" class="result-card" aria-live="polite" hidden>
+      <div class="result-heading">
+        <div><p class="eyebrow">RESULTADO DA PESQUISA</p><h2 id="result-title">Códigos encontrados</h2></div>
+        <button id="copy-button" class="copy-button" type="button">Copiar resultado</button>
+      </div>
+      <div id="result" class="result"></div>
+      <p class="disclaimer">Confira o código e a apresentação no sistema do distribuidor antes de concluir o pedido. A pesquisa na web não garante estoque.</p>
+    </section>
+
+    <section id="error-card" class="error-card" hidden role="alert"></section>
+
+    <footer>
+      <span>Assistente de Balcão IA</span>
+      <span>Pesquisa online • Códigos não são inventados</span>
+    </footer>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>
