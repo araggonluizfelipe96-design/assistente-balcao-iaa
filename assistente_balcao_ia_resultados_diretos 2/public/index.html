@@ -17,41 +17,17 @@
         <h1>Busca de Medicamentos</h1>
         <p class="sub">Informações farmacêuticas em um só lugar.</p>
       </div>
-      <span class="live"><i></i> IA + WEB</span>
+      <span class="live"><i></i> CONSULTA</span>
     </header>
-
     <section class="search-card">
       <label for="query">Qual medicamento você procura?</label>
       <form id="search-form">
         <div class="input-wrap">
-          <input id="query" name="query" maxlength="180"
-            placeholder="Ex.: dipirona 500 mg, cefuroxima 250 mg..."
-            autocomplete="off" required>
-        </div>
-
-        <div class="patient-fields">
-          <div class="field">
-            <label for="age">Idade do paciente</label>
-            <select id="age" name="age">
-              <option value="">Não informado</option>
-              <option value="6 meses a 2 anos">6 meses a 2 anos</option>
-              <option value="3 a 6 anos">3 a 6 anos</option>
-              <option value="6 a 9 anos">6 a 9 anos</option>
-              <option value="9 a 12 anos">9 a 12 anos</option>
-              <option value="Acima de 12 anos (adulto)">Acima de 12 anos (adulto)</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="weight">Peso (kg)</label>
-            <input id="weight" name="weight" type="number"
-              min="0.1" max="300" step="0.1" placeholder="Ex.: 12">
-          </div>
+          <input id="query" name="query" maxlength="180" placeholder="Ex.: dipirona 500 mg, cefuroxima 250 mg..." autocomplete="off" required>
           <button id="search-button" type="submit">Buscar <span>→</span></button>
         </div>
       </form>
-
-      <p class="hint">A idade e o peso ajudam a contextualizar a consulta. A dose só será calculada quando houver dados confiáveis da apresentação e da posologia.</p>
-
+      <p class="hint">Digite apenas o nome do medicamento ou princípio ativo.</p>
       <div class="quick">
         <span>Exemplos rápidos:</span>
         <button type="button" data-query="dipirona gotas 500 mg/mL">Dipirona gotas</button>
@@ -60,26 +36,16 @@
         <button type="button" data-query="alendronato de sódio">Alendronato</button>
       </div>
     </section>
-
     <section id="result-card" class="result-card" aria-live="polite" hidden>
       <div class="result-heading">
-        <div>
-          <p class="eyebrow">RESULTADO DA PESQUISA</p>
-          <h2 id="result-title">Medicamento</h2>
-        </div>
+        <div><p class="eyebrow">RESULTADO DA PESQUISA</p><h2 id="result-title">Medicamento</h2></div>
         <button id="copy-button" class="copy-button" type="button">Copiar resultado</button>
       </div>
-      <div id="patient-summary" class="patient-summary" hidden></div>
       <div id="result" class="result"></div>
-      <p class="disclaimer">Confira sempre a apresentação, a concentração e as informações oficiais antes da dispensação. Registro MS não é código EAN.</p>
+      <p class="disclaimer">Confirme apresentação, concentração e fonte oficial antes da dispensação. Registro MS não é código EAN.</p>
     </section>
-
     <section id="error-card" class="error-card" hidden role="alert"></section>
-
-    <footer>
-      <span>✚ Assistente de Balcão IA</span>
-      <span>Consulta cadastral • Fonte: Anvisa</span>
-    </footer>
+    <footer><span>✚ Assistente de Balcão IA</span><span>Consulta cadastral • Fonte: Anvisa</span></footer>
   </main>
   <script src="/app.js"></script>
 </body>
