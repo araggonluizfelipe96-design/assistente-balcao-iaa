@@ -3,55 +3,82 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#102c27">
-  <meta name="description" content="Pesquise códigos EAN de medicamentos com IA e fontes da internet.">
+  <meta name="theme-color" content="#031b1c">
+  <meta name="description" content="Assistente de Balcão - pesquisa de medicamentos.">
   <title>Assistente de Balcão IA</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
   <main class="shell">
     <header class="top">
-      <div class="logo" aria-hidden="true">+</div>
-      <div>
-        <p class="eyebrow">PESQUISA FARMACÊUTICA</p>
-        <h1>Assistente de Balcão</h1>
-        <p class="sub">Digite o medicamento e veja os EANs encontrados diretamente aqui, com as fontes consultadas.</p>
+      <div class="logo">+</div>
+      <div class="brand">
+        <p class="eyebrow">ASSISTENTE DE BALCÃO</p>
+        <h1>Busca de Medicamentos</h1>
+        <p class="sub">Informações farmacêuticas em um só lugar.</p>
       </div>
       <span class="live"><i></i> IA + WEB</span>
     </header>
 
     <section class="search-card">
-      <label for="query">Nome do medicamento</label>
+      <label for="query">Qual medicamento você procura?</label>
       <form id="search-form">
         <div class="input-wrap">
-          <span class="search-icon" aria-hidden="true">⌕</span>
-          <input id="query" name="query" maxlength="180" placeholder="Ex.: cefuroxima axetil 250 mg" autocomplete="off" required>
-          <button id="search-button" type="submit">Buscar EANs <span aria-hidden="true">→</span></button>
+          <input id="query" name="query" maxlength="180"
+            placeholder="Ex.: dipirona 500 mg, cefuroxima 250 mg..."
+            autocomplete="off" required>
+        </div>
+
+        <div class="patient-fields">
+          <div class="field">
+            <label for="age">Idade do paciente</label>
+            <select id="age" name="age">
+              <option value="">Não informado</option>
+              <option value="6 meses a 2 anos">6 meses a 2 anos</option>
+              <option value="3 a 6 anos">3 a 6 anos</option>
+              <option value="6 a 9 anos">6 a 9 anos</option>
+              <option value="9 a 12 anos">9 a 12 anos</option>
+              <option value="Acima de 12 anos (adulto)">Acima de 12 anos (adulto)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="weight">Peso (kg)</label>
+            <input id="weight" name="weight" type="number"
+              min="0.1" max="300" step="0.1" placeholder="Ex.: 12">
+          </div>
+          <button id="search-button" type="submit">Buscar <span>→</span></button>
         </div>
       </form>
-      <p class="hint">Digite a marca, o princípio ativo ou até um nome escrito incorretamente. Os resultados aparecem nesta tela.</p>
+
+      <p class="hint">A idade e o peso ajudam a contextualizar a consulta. A dose só será calculada quando houver dados confiáveis da apresentação e da posologia.</p>
+
       <div class="quick">
-        <span>Exemplos:</span>
+        <span>Exemplos rápidos:</span>
         <button type="button" data-query="dipirona gotas 500 mg/mL">Dipirona gotas</button>
-        <button type="button" data-query="Desve 50 mg 30 comprimidos">Desve 50 mg</button>
+        <button type="button" data-query="Desve 50 mg">Desve 50 mg</button>
         <button type="button" data-query="cefuroxima axetil 250 mg">Cefuroxima 250 mg</button>
+        <button type="button" data-query="alendronato de sódio">Alendronato</button>
       </div>
     </section>
 
     <section id="result-card" class="result-card" aria-live="polite" hidden>
       <div class="result-heading">
-        <div><p class="eyebrow">RESULTADO DA PESQUISA</p><h2 id="result-title">Códigos encontrados</h2></div>
+        <div>
+          <p class="eyebrow">RESULTADO DA PESQUISA</p>
+          <h2 id="result-title">Medicamento</h2>
+        </div>
         <button id="copy-button" class="copy-button" type="button">Copiar resultado</button>
       </div>
+      <div id="patient-summary" class="patient-summary" hidden></div>
       <div id="result" class="result"></div>
-      <p class="disclaimer">Confira o código e a apresentação no sistema do distribuidor antes de concluir o pedido. A pesquisa na web não garante estoque.</p>
+      <p class="disclaimer">Confira sempre a apresentação, a concentração e as informações oficiais antes da dispensação. Registro MS não é código EAN.</p>
     </section>
 
     <section id="error-card" class="error-card" hidden role="alert"></section>
 
     <footer>
-      <span>Assistente de Balcão IA</span>
-      <span>Pesquisa online • Códigos não são inventados</span>
+      <span>✚ Assistente de Balcão IA</span>
+      <span>Consulta cadastral • Fonte: Anvisa</span>
     </footer>
   </main>
   <script src="/app.js"></script>
