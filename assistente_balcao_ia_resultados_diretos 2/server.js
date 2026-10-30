@@ -153,7 +153,9 @@ app.post("/api/search", async (req, res) => {
       });
     }
 
-    const aiIdentification = await identifyWithGemini(query, matches);\n\n    const table = [
+    const aiIdentification = await identifyWithGemini(query, matches);
+
+    const table = [
       "| Campo | Informação |",
       "|---|---|",
       ...[
@@ -174,7 +176,7 @@ app.post("/api/search", async (req, res) => {
     ].join("\n");
 
     res.json({ answer:
-      "**Consulta cadastral — resultado da Anvisa**\n\n" + table +
+      "**Consulta cadastral — resultado da Anvisa**\n\n" + (aiIdentification ? "**Gemini — identificação:** " + aiIdentification + "\n\n" : "") + table +
       "\n\n**Atenção:** esta consulta confirma apenas dados cadastrais. Não fornece posologia, EAN, tipo de receita ou estoque de distribuidores. Não usar como única base para dispensação.\n\n" +
       "Fonte: [Dados Abertos da Anvisa](" + DATA_URL + ") • [Bulário Eletrônico](" + BULARIO_URL + ")"
     });
