@@ -1,6 +1,7 @@
 import express from "express";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { GoogleGenAI } from "@google/genai";
 
 const app = express();
 const port = Number(process.env.PORT || 3000);
@@ -19,6 +20,29 @@ const DISTRIBUTORS = [
 
 // Integração com catálogo autorizado. Configure URL e token no ambiente do servidor.
 // O provedor deve responder: { results: [{ distributor, code, product }] }.
+async function identifyWithGemini(query, matches = []) {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return "";
+  try {
+    const ai = new GoogleGenAI({ apiKey });
+    const response = await ai.models.generateContent({
+      model: "gemini-flash-latest",
+      contents: [
+        "Você é um assistente de identificação de medicamentos para farmácia no Brasil. " +
+        "Sua única tarefa nesta etapa é identificar/corrigir o nome digitado e comparar com os resultados cadastrais fornecidos. " +
+        "Não invente medicamentos, princípio ativo, dose, posologia, EAN, registro ou disponibilidade. " +
+        "Se não houver correspondência confiável, diga que não foi possível identificar. " +
+        "Responda em português, em no máximo 3 linhas.\n\n" +
+        "Busca: " + query + "\nResultados oficiais encontrados: " + JSON.stringify(matches.slice(0, 8))
+      ]
+    });
+    return String(response.text || "").trim().slice(0, 900);
+  } catch (error) {
+    console.error("Gemini indisponível:", error?.message || error);
+    return "";
+  }
+}
+
 async function searchDistributorCodes(query) {
   const endpoint = process.env.DISTRIBUTOR_CODES_API_URL;
   const token = process.env.DISTRIBUTOR_CODES_API_TOKEN;
@@ -129,7 +153,7 @@ app.post("/api/search", async (req, res) => {
       });
     }
 
-    const table = [
+    const aiIdentification = await identifyWithGemini(query, matches);\n\n    const table = [
       "| Campo | Informação |",
       "|---|---|",
       ...[
