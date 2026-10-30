@@ -10,6 +10,39 @@ app.use(express.static(path.join(here, "public")));
 
 const DATA_URL = "https://dados.anvisa.gov.br/dados/DADOS_ABERTOS_MEDICAMENTOS.csv";
 const BULARIO_URL = "https://www.gov.br/anvisa/pt-br/sistemas/bulario-eletronico";
+
+const DISTRIBUTORS = [
+  { name: "Santa Cruz", url: "https://stcruz.com.br/" },
+  { name: "Panpharma", url: "https://www.panpharma.com.br/" },
+  { name: "ProFarma", url: "https://www.profarma.com.br/" }
+];
+
+// Integração com catálogo autorizado. Configure URL e token no ambiente do servidor.
+// O provedor deve responder: { results: [{ distributor, code, product }] }.
+async function searchDistributorCodes(query) {
+  const endpoint = process.env.DISTRIBUTOR_CODES_API_URL;
+  const token = process.env.DISTRIBUTOR_CODES_API_TOKEN;
+  if (!endpoint || !token) return { connected: false, results: [] };
+  try {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
+      body: JSON.stringify({ query }),
+      signal: AbortSignal.timeout(12000)
+    });
+    if (!response.ok) return { connected: true, results: [] };
+    const data = await response.json();
+    return {
+      connected: true,
+      results: (Array.isArray(data.results) ? data.results : [])
+        .filter(x => x && x.distributor && x.code)
+        .map(x => ({ distributor: String(x.distributor).slice(0, 80), code: String(x.code).slice(0, 80) }))
+    };
+  } catch {
+    return { connected: true, results: [] };
+  }
+}
+
 let catalog = null;
 let lastUpdate = 0;
 let loading = null;
@@ -66,6 +99,7 @@ app.post("/api/search", async (req, res) => {
 
   try {
     const rows = await loadCatalog();
+    const distributorLookup = await searchDistributorCodes(query);
     const needle = normalize(query);
     const terms = needle.split(" ").filter(term => term.length > 1);
     const matches = [];
@@ -107,6 +141,10 @@ app.post("/api/search", async (req, res) => {
         ["Administração", "Conferir bula oficial da apresentação exata"],
         ["Receita", "Não confirmado nesta consulta"],
         ["EAN", "Não localizado nesta base"],
+        ["Código — Santa Cruz", distributorLookup.connected ? (distributorLookup.results.filter(x => normalize(x.distributor) === "santa cruz").map(x => x.code).join("; ") || "Não localizado") : "Consulta não conectada"],
+        ["Código — Panpharma", distributorLookup.connected ? (distributorLookup.results.filter(x => normalize(x.distributor).includes("panpharma")).map(x => x.code).join("; ") || "Não localizado") : "Consulta não conectada"],
+        ["Código — ProFarma", distributorLookup.connected ? (distributorLookup.results.filter(x => normalize(x.distributor).includes("profarma")).map(x => x.code).join("; ") || "Não localizado") : "Consulta não conectada"],
+        ["Outras distribuidoras", distributorLookup.connected ? (distributorLookup.results.filter(x => !["santa cruz", "panpharma", "profarma"].includes(normalize(x.distributor))).map(x => x.distributor + ": " + x.code).join("; ") || "Não localizado") : "Consulta ampliada não conectada"],
         ["Segurança", "🔴 Necessita conferência da bula, dose e apresentação"]
       ].map(([campo, info]) => "| **" + campo + "** | " + info + " |")
     ].join("\n");
