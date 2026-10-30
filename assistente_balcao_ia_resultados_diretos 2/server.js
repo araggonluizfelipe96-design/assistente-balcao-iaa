@@ -1,4 +1,3 @@
-
 import express from "express";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -10,7 +9,8 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 app.use(express.json({ limit: "20kb" }));
 app.use(express.static(path.join(here, "public")));
 
-const DATA_URL = "https://dados.anvisa.gov.br/dados/DADOS_ABERTOS_MEDICAMENTOS.csv";
+const DATA_URL =
+  "https://dados.anvisa.gov.br/dados/DADOS_ABERTOS_MEDICAMENTOS.csv";
 
 let catalog = null;
 let lastUpdate = 0;
@@ -67,6 +67,7 @@ async function loadCatalog() {
     }
 
     const buffer = await response.arrayBuffer();
+
     const csv = new TextDecoder("windows-1252")
       .decode(buffer)
       .replace(/^\uFEFF/, "");
@@ -120,6 +121,8 @@ app.get("/api/health", (_req, res) => {
 
 app.post("/api/search", async (req, res) => {
   const query = String(req.body?.query || "").trim();
+  const age = String(req.body?.age || "").trim();
+  const weight = String(req.body?.weight || "").trim();
 
   if (!query) {
     return res.status(400).json({
@@ -130,6 +133,13 @@ app.post("/api/search", async (req, res) => {
   if (query.length > 180) {
     return res.status(400).json({
       error: "Busca muito longa."
+    });
+  }
+
+  if (weight && (!Number.isFinite(Number(weight)) ||
+      Number(weight) <= 0 || Number(weight) > 300)) {
+    return res.status(400).json({
+      error: "Informe um peso válido em kg."
     });
   }
 
@@ -165,10 +175,22 @@ app.post("/api/search", async (req, res) => {
       if (matches.length >= 30) break;
     }
 
+    const patientInfo = [];
+
+    if (age) patientInfo.push("Faixa etária: " + age);
+    if (weight) patientInfo.push("Peso: " + weight + " kg");
+
+    const patientText = patientInfo.length
+      ? "\n\n**Paciente:** " + patientInfo.join(" • ")
+      : "";
+
     if (!matches.length) {
       return res.json({
         answer:
-          "Nenhum medicamento correspondente foi localizado na base da Anvisa. Tente pesquisar pelo princípio ativo ou nome completo.\n\nFonte: [Anvisa](" +
+          "**Nenhum medicamento correspondente foi localizado na base da Anvisa.**\n\n" +
+          "Tente pesquisar pelo princípio ativo ou pelo nome completo." +
+          patientText +
+          "\n\nFonte: [Dados Abertos da Anvisa](" +
           DATA_URL +
           ")"
       });
@@ -182,13 +204,22 @@ app.post("/api/search", async (req, res) => {
       )
     ].join("\n");
 
+    const doseNotice =
+      "**Posologia:** não calculada. A base consultada não fornece dose, concentração ou intervalo de administração. É necessário conferir a bula da apresentação exata antes de orientar o uso.";
+
     res.json({
       answer:
         "**Resultados da base oficial da Anvisa**\n\n" +
         table +
-        "\n\n**Atenção:** esta consulta mostra dados cadastrais. Não confirma EAN/GTIN, preço ou estoque nos distribuidores Santa Cruz, PanFarma e ProFarma. Registro MS não é código de barras.\n\nFonte: [Dados Abertos da Anvisa](" +
+        patientText +
+        "\n\n" +
+        doseNotice +
+        "\n\n**EAN:** não disponível nesta base.\n\n" +
+        "**Estoque em distribuidores:** não consultado.\n\n" +
+        "Fonte: [Dados Abertos da Anvisa](" +
         DATA_URL +
-        ")"
+        ")\n" +
+        "Bulas oficiais: [Bulário Eletrônico da Anvisa](https://www.gov.br/anvisa/pt-br/sistemas/bulario-eletronico)"
     });
   } catch (error) {
     console.error("Erro na consulta:", error);
